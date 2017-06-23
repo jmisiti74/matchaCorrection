@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Matcha - Inscription</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<link rel="stylesheet" type="text/css" href="css/theme.css">
+	</head>
+	<body>
+		<div class="container-fluid">
+			<%- include includes/header.ejs %>
+			<div class="text-center">
+				<h1>S'inscrire : </h1>
+				<br>
+				<div hidden id="info_block" class="alert alert-danger">
+					<span id="rmail"></span>
+					<span id="rpasswd"></span>
+					<span id="rspasswd"></span>
+				</div>
+				<form action="/signin" method="post">
+					E-mail : <br>
+					<input type="email" id="mail" name="mail" value="" required placeholder="mon@email.fr"><br>
+					Mot de passe : <br>
+					<input type="password" id="passwd" name="passwd" required value="" placeholder="********"><br>
+					Confirmer : <br>
+					<input type="password" id="spasswd" name="spasswd" required value="" placeholder="********"><br><br>
+					<input id="button" type="submit" value="Valider">
+				</form>
+			</div>
+			<%- include includes/footer.ejs %>
+		</div>
+		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script>
+			$(document).ready(function(){
+				var error1 = false;
+				var error2 = false;
+				var error3 = false;
+				function securePass(pwd)
+				{
+					if (pwd.length < 8)
+						return (false);
+					return (true);
+				}
+				function validateEmail(email) {
+					var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+					return re.test(email);
+				}
+				$("#mail").focusout(function(){
+					if (!validateEmail(this.value))
+					{
+						error1 = true;
+						$("#info_block").show(250);
+						$("#rmail").html("- Veuillez entrer un e-mail valide.<br>");
+					}
+					else
+					{
+						error1 = false;
+						if (error1 == false && error2 == false && error3 == false)
+							$("#info_block").hide(250);
+						$("#rmail").html("");
+					}
+				});
+				$("#passwd").focusout(function(){
+					if (!securePass(this.value))
+					{
+						error2 = true;
+						$("#info_block").show(250);
+						$("#rpasswd").html("- Votre mot de passe est trop court, 8 caractères minimum.<br>");
+					}
+					else
+					{
+						error2 = false;
+						if (error1 == false && error2 == false && error3 == false)
+							$("#info_block").hide(250);
+						$("#rpasswd").html("");
+					}
+				});
+				$("#spasswd").focusout(function(){
+					if (this.value != $("#passwd").val())
+					{
+						error3 = true;
+						$("#info_block").show(250);
+						$("#rspasswd").html("- Vos mots de passes doivent correspondre.<br>");
+					}
+					else
+					{
+						error3 = false;
+						if (error1 == false && error2 == false && error3 == false)
+							$("#info_block").hide(250);
+						$("#rspasswd").html("");
+					}
+				});
+			});
+		</script>
+	</body>
+</html>

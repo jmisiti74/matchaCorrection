@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Matcha - Mon compte</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<link rel="stylesheet" type="text/css" href="css/theme.css">
+	</head>
+	<body>
+		<div id="form_id" class="container-fluid">
+			<%- include includes/header.ejs %>
+			<div class="text-center">
+				<br>
+				<div hidden id="info_block" class="alert alert-danger">
+					<p>Veuillez remplire les champs manquants afin d'accéder a la recherche de profil :</p>
+				</div>
+				<h2 id="bedition">Edition de mes paramètres :</h2><hr>
+				<div id="edition" hidden>
+					<br>
+					<form action="/myaccount" method="post">
+						E-mail* : <br>
+						<input type="email" id="mail" name="mail" value="<%- mail %>"><br><br>
+						Prénom* : <br>
+						<input type="text" id="firstname" name="firstname" value="<%- firstname %>"><br><br>
+						Nom* : <br>
+						<input type="text" id="name" name="name" value="<%- name %>"><br><br>
+						Age* : <br>
+						<input type="number" id="age" name="age" min="0" max="100" value="<%- age %>"><br><br>
+						<b>Votre sexe*</b> : <br>
+						<% if (sexe == "F") { %>
+							Homme - <input type="radio" class="sexe" name="sexe" value="H"><br>
+							Femme - <input type="radio" class="sexe" name="sexe" value="F" checked><br>
+						<% } else { %>
+							Homme - <input type="radio" class="sexe" name="sexe" value="H" checked><br>
+							Femme - <input type="radio" class="sexe" name="sexe" value="F"><br>
+						<% } %>
+						<br />
+						<b>Sexe rechercher</b> : <br>
+						<% if (orientation == "F") { %>
+							Homme - <input type="radio" name="orientation" value="H"><br>
+							Femme - <input type="radio" name="orientation" value="F" checked><br>
+							Les deux - <input type="radio" name="orientation" value=""><br>
+						<% } else if (orientation == "H") { %>
+							Homme - <input type="radio" name="orientation" value="H" checked><br>
+							Femme - <input type="radio" name="orientation" value="F"><br>
+							Les deux - <input type="radio" name="orientation" value=""><br>
+						<% } else { %>
+							Homme - <input type="radio" name="orientation" value="H"><br>
+							Femme - <input type="radio" name="orientation" value="F"><br>
+							Les deux - <input type="radio" name="orientation" value="" checked><br>
+						<% } %>
+						<br />
+						<b>Décriver vous</b> : <br>
+						<textarea style="max-width: 180px; min-height: 100px;" name="description" id="description"><%- description %></textarea><br><br>
+						Des centres d'intérêts (Séparer par des virgules) : <br>
+						<input type="text" id="tags" name="tags" placeholder="musique, fraise, chat"><br><br>
+						<input id="button" type="submit" value="Valider"><br><br><br>
+					</form>
+				</div>
+				<h2 id="bajoutimg">Edition de vos images :</h2><hr>
+				<div id="ajoutimg" style="margin: auto; margin-top: -60px;" hidden>
+					<div class="gallery">
+						<div class="container">
+							<div class="row">
+								<% var imgn = 0; 
+								imgs.forEach(function(img) {
+									if (imgn == 0) {
+								%>
+									<div class="col-xs-offset-3 col-xs-6 gallery-item">
+										<a class="link-gallery" data-toggle="modal" data-target="#modalGallery">
+											<img src="<%= img.path %>" class="img-responsive img-gallery"/>
+											<br />
+											<form action="/delete" method="post">
+												<input hidden type="text" name="id" value="<%= imgn %>" />
+												<button type="submit" class="btn btn-danger">Supprimer</button>
+											</form>
+										</a>
+									</div>
+								<%
+								} else { 
+								%>
+									<div hidden class="col-xs-3 gallery-item">
+										<a class="link-gallery" data-toggle="modal" data-target="#modalGallery">
+											<img src="<%= img.path %>" class="img-responsive img-gallery"/>
+											<br />
+											<form action="/delete" method="post">
+												<input hidden type="text" name="id" value="<%= imgn %>" />
+												<button type="submit" class="btn btn-danger">Supprimer</button>
+											</form>
+										</a>
+									</div>
+								<% }
+								imgn++;
+								}); %>
+							</div>
+						</div>
+					</div>
+					<div class="modal fade" id="modalGallery" tabindex="-1" role="dialog" aria-labelledby="modalGalleryLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+									<h4 class="modal-title" id="modalGalleryLabel">Gallery</h4>
+								</div> <!-- /.modal-header -->
+
+								<div class="modal-body">
+									<div id="carouselGallery" class="carousel slide" data-ride="carousel" data-interval="false">
+										<div class="carousel-inner">
+										</div> <!-- /.carousel-inner -->
+									</div> <!-- /.carousel -->
+								</div> <!-- /.modal-body -->
+
+								<div class="modal-footer">
+									<ul class="pagination">
+									</ul>
+								</div> <!-- /.modal-footer -->
+							</div> <!-- /.modal-content -->
+						</div> <!-- /.modal-dialog -->
+					</div>
+					<% if (imgn < 5) { %>
+						<form action="/uploads" method="post" enctype="multipart/form-data">
+							<label class="btn btn-default btn-file">
+								Import : <input type="file" name="img" hidden>
+							</label>
+							<input type="submit"><br><br><br>
+						</form>
+					<% } else { %>
+						<p>Vous possedez déjà 5 images.</p><br><br><br>
+					<% } %>
+				</div>
+			</div>
+			<%- include includes/footer.ejs %>
+		</div>
+		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script>
+			$(document).ready(function(){
+				if ($("#firstname").val() == "")
+				{
+					$("#info_block").show(250);
+					$("#info_block").html($("#info_block").html() + "- Votre Prénom<br />");
+				}
+				if ($("#name").val() == "")
+				{
+					$("#info_block").show(250);
+					$("#info_block").html($("#info_block").html() + "- Votre Nom<br />");
+				}
+				if ($("#age").val() <= 18)
+				{
+					$("#info_block").show(250);
+					$("#info_block").html($("#info_block").html() + "- Votre age (+18 ans)<br />");
+				}
+				<% if (imgn == 0) { %>
+					$("#info_block").show(250);
+					$("#info_block").html($("#info_block").html() + "- Une image<br />");
+				<% } %>
+				$("#bedition").click(function(){
+					$("#edition").toggle(500);
+				});
+				$("#bajoutimg").click(function(){
+					$("#ajoutimg").toggle(500);
+				});
+				 $('.link-gallery').click(function(){
+					var galleryId = $(this).attr('data-target');
+					var currentLinkIndex = $(this).index('a[data-target="'+ galleryId +'"]');
+
+					createGallery(galleryId, currentLinkIndex);
+					createPagination(galleryId, currentLinkIndex);
+
+					$(galleryId).on('hidden.bs.modal', function (){
+						destroyGallry(galleryId);
+						destroyPagination(galleryId);
+					});
+
+					$(galleryId +' .carousel').on('slid.bs.carousel', function (){
+						var currentSlide = $(galleryId +' .carousel .item.active');
+						var currentSlideIndex = currentSlide.index(galleryId +' .carousel .item');
+
+						setTitle(galleryId, currentSlideIndex);
+						setPagination(++currentSlideIndex, true);
+					})
+				});
+
+				function createGallery(galleryId, currentSlideIndex){
+					var galleryBox = $(galleryId + ' .carousel-inner');
+
+					$('a[data-target="'+ galleryId +'"]').each(function(){
+						var img = $(this).html();
+						var galleryItem = $('<div class="item">'+ img +'</div>');
+
+						galleryItem.appendTo(galleryBox);
+					});
+
+					galleryBox.children('.item').eq(currentSlideIndex).addClass('active');
+					setTitle(galleryId, currentSlideIndex);
+				}
+
+				function destroyGallry(galleryId){
+					$(galleryId + ' .carousel-inner').html("");
+				}
+
+				function createPagination(galleryId, currentSlideIndex){
+					var pagination = $(galleryId + ' .pagination');
+					var carouselId = $(galleryId).find('.carousel').attr('id');
+					var prevLink = $('<li><a href="#'+ carouselId +'" data-slide="prev">«</a></li>');
+					var nextLink = $('<li><a href="#'+ carouselId +'" data-slide="next">»</a></li>');
+
+					prevLink.appendTo(pagination);
+					nextLink.appendTo(pagination);
+
+					$('a[data-target="'+ galleryId +'"]').each(function(){
+						var linkIndex = $(this).index('a[data-target="'+ galleryId +'"]');
+						var paginationLink = $('<li><a data-target="#carouselGallery" data-slide-to="'+ linkIndex +'">'+ (linkIndex+1) +'</a></li>');
+
+						paginationLink.insertBefore('.pagination li:last-child');
+					});
+
+					setPagination(++currentSlideIndex);
+				}
+
+				function setPagination(currentSlideIndex, reset = false){
+					if (reset){
+						$('.pagination li').removeClass('active');
+					}
+
+					$('.pagination li').eq(currentSlideIndex).addClass('active');
+				}
+
+				function destroyPagination(galleryId){
+					$(galleryId + ' .pagination').html("");
+				}
+
+				function setTitle(galleryId, currentSlideIndex){
+					var imgAlt = $(galleryId + ' .item').eq(currentSlideIndex).find('img').attr('alt');
+
+					$('.modal-title').text(imgAlt);
+				}
+
+
+			});
+			var socket = io.connect('http://localhost:8888');
+			if ("geolocation" in navigator) {
+				navigator.geolocation.getCurrentPosition(positionSuccess, positionError, { enableHighAccuracy: true });
+			}
+			else
+				console.log("oops");
+			askMatchs();
+			function askMatchs(){
+				socket.emit('didIMatch');
+				socket.emit('didIVisit');
+			}
+			setInterval(askMatchs, 5000);
+			socket.on('matchs', function(count) {
+				if (count > 0) {
+					$(".count").html(count);
+					$(".cnt").html(".");
+					$(".anticount").hide();
+				}
+			});
+			socket.on('visited', function(count) {
+				if (count > 0) {
+					$(".cnt").html(".");
+					$(".anticount").hide();
+					$(".countvisited").html(count);
+				}
+			});
+			function positionSuccess(position) {
+				var lat = position.coords.latitude;
+				var lng = position.coords.longitude;
+				var datas = {
+					id: "<%= mail %>",
+					lat: lat,
+					lng: lng
+				}
+				socket.emit('datas:send', datas);
+			}
+
+			function positionError(error) {
+				var errors = {
+					1: "Authorization fails", // permission denied
+					2: "Can\'t detect your location", //position unavailable
+					3: "Connection timeout" // timeout
+				};
+				$("#info_block").show(250);
+				$("#info_block").html($("#info_block").html() + "Nous n'arivons pas à vous localisé !<br />");
+				console.log("Erreur : " + errors[error.code]);
+			}
+			</script>
+	</body>
+</html>

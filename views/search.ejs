@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Matcha - Recherche</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<link rel="stylesheet" type="text/css" href="css/theme.css">
+	</head>
+	<body>
+		<div class="container-fluid">
+			<%- include includes/header.ejs %>
+			<div class="match row text-center">
+				<div class="col-xs-offset-2 col-xs-8 panel panel-default">
+					<div class="panel-heading"><span id="firstname"></span> <span id="name"></div>
+					<div id="link" class="panel-body img-responsive">
+						<div class="col-xs-offset-3 col-xs-6 gallery-item">
+							<a class="link-gallery" data-toggle="modal" data-target="#modalGallery">
+								<img id="img" class="img-responsive img-gallery"/>
+							</a>
+						</div>
+					</div>
+  					<div class="panel-footer"><span id="age"></span><span id="distance"></span><br /><span id="description"></span>
+					</div>
+					<br />
+					<button id="dislike" style="" type="button" class="btn btn-danger">J'aime pas</button>
+					<button id="like" style="" type="button" class="btn btn-success">J'aime</button>
+					<br />
+					<br />
+				</div>
+			</div>
+			<div class="nomore row text-center">
+				<p>Désolé mais il n'y a plus aucun utilisateur qui vous correspond...</p>
+			</div>
+			<%- include includes/footer.ejs %>
+		</div>
+		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+		<script>
+			var socket = io.connect('http://localhost:8888');
+
+			askMatchs();
+			function askMatchs(){
+				socket.emit('didIMatch');
+				socket.emit('didIVisit');
+			}
+			setInterval(askMatchs, 5000);
+			socket.on('matchs', function(count) {
+				if (count > 0) {
+					$(".count").html(count);
+					$(".cnt").html(".");
+					$(".anticount").hide();
+				}
+			});
+			socket.on('visited', function(count) {
+				if (count > 0) {
+					$(".cnt").html(".");
+					$(".anticount").hide();
+					$(".countvisited").html(count);
+				}
+			});
+			var uid = 0;
+			// Et on l'envoie avec le signal "petit_nouveau" (pour le différencier de "message")
+
+			socket.emit('need');
+			// On affiche une boîte de dialogue quand le serveur nous envoie un "message"
+			socket.on('user', function(user) {
+				uid = user.id;
+				console.log("Vous voyez l'utilisateur : " + uid);
+				$("#firstname").html(user.firstname);
+				$("#name").html(user.name);
+				$("#description").html(user.description);
+				$("#age").html("Age : " + user.age + " ans");
+				$("#img").attr('src', user.img);
+				if (user.distance < 1)
+					$("#distance").html(" | Distance : " + user.distance + "km");
+				else
+					$("#distance").html(" | Distance : " + user.distance + "m");
+			})
+			$("#link").click(function () {
+				window.location.replace("/profil?fuid=" + uid);
+			});
+			$("#like").click(function () {
+				socket.emit('iLike');
+				socket.emit('need');
+			});
+			$("#dislike").click(function () {
+				socket.emit('iDontLike');
+				socket.emit('need');
+			});
+			socket.on('noMoreUser', function() {
+				$("#firstname").html("");
+				$("#name").html("");
+				$("#description").html("");
+				$("#age").html("");
+				$("#img").attr('src', "");
+				$("#distance").html("");
+				$(".match").hide();
+				$(".nomore").show();
+			});
+			// Lorsqu'on clique sur le bouton, on envoie un "message" au serveur
+		</script>
+	</body>
+</html>

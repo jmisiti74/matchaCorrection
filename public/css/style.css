@@ -1,0 +1,17 @@
+.gallery{
+    margin-top: 100px;
+}
+.gallery-item{
+	margin-bottom: 30px;
+}
+.modal-footer{
+	text-align: center;
+}
+
+.modal-content {
+	height: 50%;
+}
+
+.pagination{
+	margin: 0;
+}

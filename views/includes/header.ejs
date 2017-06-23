@@ -1,0 +1,68 @@
+<HEADER>
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/">Matcha</a></a>
+			</div>
+
+			<!-- TODO; Seulement si inscrit -->
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav navbar-left">
+				<% if (mail) { %>
+					<li><a href="/search"><span class="hidden-sm">Chercher </span><span class="glyphicon glyphicon-heart"></span></a></li>
+				<% } %>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+				<% if (mail) { %>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="hidden-sm">Moi </span><span class="glyphicon glyphicon-user"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="/myaccount">Mon profil</a></li>
+							<li><a href="/score">Mon score</a></li>
+							<li role="separator" class="divider"></li>
+							<li><a href="/profil/me">Aperçu du profil</a></li>
+						</ul>
+					</li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="hidden-sm">Notifications <span class="cnt badge"></span></span><span class="anticount glyphicon glyphicon-bookmark"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="#">Visites <span class="countvisited badge"></span></a></li>
+							<li><a href="/matches">Matchs <span class="count badge"></span></a></li>
+							<li role="separator" class="divider"></li>
+							<li><a href="#">Messages</a></li>
+						</ul>
+					</li>
+					<li><a href="/logout"><span class="hidden-sm">Déconnexion </span><span class="glyphicon glyphicon-off"></span></a></li>
+				<% } else { %>
+					<li>
+						<a href="/login"><span class="hidden-sm">Se connecter </span><span class="glyphicon glyphicon-log-in"></span></a>
+					</li>
+					<li>
+						<a href="/signin"><span class="hidden-sm">S'inscrire </span><span class="glyphicon glyphicon-edit"></span></a>
+					</li>
+				<% } %>
+				</ul>
+			</div>
+
+			<!-- /Seulement si inscrit -->
+
+		</div>
+	</nav>
+</HEADER>
+<p>
+	<% if (type == "ok") { %>
+		<div class="alert alert-success"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><%- msg %></div>
+	<% } else if (type == "error") { %>
+		<div id="wmsg" class="alert alert-danger"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><%- msg %></div>
+	<% } %>
+</p>
+
+
+
+

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>Matcha - <%= pfirstname %> <%= pname %></title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="css/style.css">
+		<link rel="stylesheet" type="text/css" href="css/theme.css">
+	</head>
+	<body>
+		<div class="container-fluid">
+			<%- include includes/header.ejs %>
+			<% if (mail == pmail) { %><div class="alert alert-info"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><p>Voici un aperçu de votre compte. Les autres utilisateurs voient votre profil tel que vous le voyez maintenant.</p></div><% } %>
+			<div class="text-center">
+				<h1><%= pfirstname %> <%= pname %> - <%= page %></h1>
+				<br />
+				<p><%= score %> / 10</p>
+				<p>sexe : <% if(psexe == "F") { %> Femme <% } else { %> Homme <% } %><br />description : <p><%= pdescription %></p><br />tags : <p>
+				<% ptags.forEach(function(tag) { %>
+					<% if (tag.length > 1) { %><span class="badge">#<%= tag %></span><% } %>
+				<% }); %>
+				</p></p>
+				<div class="gallery">
+					<h2>Images :</h2>
+					<div class="container">
+						<div class="row">
+							<% var imgn = 0; 
+							pimgs.forEach(function(pimg) {
+								if (imgn == 0) {
+							%>
+								<div class="col-xs-offset-3 col-xs-6 gallery-item">
+									<a class="link-gallery" data-toggle="modal" data-target="#modalGallery">
+										<img src="<%= pimg.path %>" class="img-responsive img-gallery"/>
+									</a>
+								</div>
+							<%
+							} else { 
+							%>
+								<div hidden class="col-xs-3 gallery-item">
+									<a class="link-gallery" data-toggle="modal" data-target="#modalGallery">
+										<img src="<%= pimg.path %>" class="img-responsive img-gallery"/>
+									</a>
+								</div>
+							<% }
+							imgn++;
+							}); %>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="modalGallery" tabindex="-1" role="dialog" aria-labelledby="modalGalleryLabel" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+								<h4 class="modal-title" id="modalGalleryLabel">Gallery</h4>
+							</div> <!-- /.modal-header -->
+
+							<div class="modal-body">
+								<div id="carouselGallery" class="carousel slide" data-ride="carousel" data-interval="false">
+									<div class="carousel-inner">
+									</div> <!-- /.carousel-inner -->
+								</div> <!-- /.carousel -->
+							</div> <!-- /.modal-body -->
+
+							<div class="modal-footer">
+								<ul class="pagination">
+								</ul>
+							</div> <!-- /.modal-footer -->
+						</div> <!-- /.modal-content -->
+					</div> <!-- /.modal-dialog -->
+				</div>
+			</div>
+			<%- include includes/footer.ejs %>
+		</div>
+		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script>
+			$(document).ready(function(){
+				 $('.link-gallery').click(function(){
+				var galleryId = $(this).attr('data-target');
+				var currentLinkIndex = $(this).index('a[data-target="'+ galleryId +'"]');
+
+				createGallery(galleryId, currentLinkIndex);
+				createPagination(galleryId, currentLinkIndex);
+
+				$(galleryId).on('hidden.bs.modal', function (){
+					destroyGallry(galleryId);
+					destroyPagination(galleryId);
+				});
+
+				$(galleryId +' .carousel').on('slid.bs.carousel', function (){
+					var currentSlide = $(galleryId +' .carousel .item.active');
+					var currentSlideIndex = currentSlide.index(galleryId +' .carousel .item');
+
+					setTitle(galleryId, currentSlideIndex);
+					setPagination(++currentSlideIndex, true);
+				})
+			});
+
+			function createGallery(galleryId, currentSlideIndex){
+				var galleryBox = $(galleryId + ' .carousel-inner');
+
+				$('a[data-target="'+ galleryId +'"]').each(function(){
+					var img = $(this).html();
+					var galleryItem = $('<div class="item">'+ img +'</div>');
+
+					galleryItem.appendTo(galleryBox);
+				});
+
+				galleryBox.children('.item').eq(currentSlideIndex).addClass('active');
+				setTitle(galleryId, currentSlideIndex);
+			}
+
+			function destroyGallry(galleryId){
+				$(galleryId + ' .carousel-inner').html("");
+			}
+
+			function createPagination(galleryId, currentSlideIndex){
+				var pagination = $(galleryId + ' .pagination');
+				var carouselId = $(galleryId).find('.carousel').attr('id');
+				var prevLink = $('<li><a href="#'+ carouselId +'" data-slide="prev">«</a></li>');
+				var nextLink = $('<li><a href="#'+ carouselId +'" data-slide="next">»</a></li>');
+
+				prevLink.appendTo(pagination);
+				nextLink.appendTo(pagination);
+
+				$('a[data-target="'+ galleryId +'"]').each(function(){
+					var linkIndex = $(this).index('a[data-target="'+ galleryId +'"]');
+					var paginationLink = $('<li><a data-target="#carouselGallery" data-slide-to="'+ linkIndex +'">'+ (linkIndex+1) +'</a></li>');
+
+					paginationLink.insertBefore('.pagination li:last-child');
+				});
+
+				setPagination(++currentSlideIndex);
+			}
+
+			function setPagination(currentSlideIndex, reset = false){
+				if (reset){
+					$('.pagination li').removeClass('active');
+				}
+
+				$('.pagination li').eq(currentSlideIndex).addClass('active');
+			}
+
+			function destroyPagination(galleryId){
+				$(galleryId + ' .pagination').html("");
+			}
+
+			function setTitle(galleryId, currentSlideIndex){
+				var imgAlt = $(galleryId + ' .item').eq(currentSlideIndex).find('img').attr('alt');
+
+				$('.modal-title').text(imgAlt);
+			}
+			});
+			var socket = io.connect('http://localhost:8888');
+
+			askMatchs();
+			function askMatchs(){
+				socket.emit('didIMatch');
+				socket.emit('didIVisit');
+			}
+			setInterval(askMatchs, 5000);
+			socket.on('matchs', function(count) {
+				if (count > 0) {
+					$(".count").html(count);
+					$(".cnt").html(".");
+					$(".anticount").hide();
+				}
+			});
+			socket.on('visited', function(count) {
+				if (count > 0) {
+					$(".cnt").html(".");
+					$(".anticount").hide();
+					$(".countvisited").html(count);
+				}
+			});
+		</script>
+	</body>
+</html>
